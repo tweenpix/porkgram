@@ -6214,6 +6214,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             }, 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             str.append(getString(R.string.SignInWithGoogle));
             signInWithGoogleView.setText(str);
+            */
 
             cantAccessEmailFrameLayout = new FrameLayout(context);
             AndroidUtilities.updateViewVisibilityAnimated(cantAccessEmailFrameLayout, activityMode != MODE_CHANGE_LOGIN_EMAIL && !isSetup, 1f, false);
