@@ -45,20 +45,7 @@ public class ApplicationLoaderImpl extends ApplicationLoader {
     }
 
     @Override
-    protected void startAppCenterInternal(Activity context) {
-
-    }
-
-    @Override
     protected void checkForUpdatesInternal() {
-
-    }
-
-    protected void appCenterLogInternal(Throwable e) {
-
-    }
-
-    protected void logDualCameraInternal(boolean success, boolean vendor) {
 
     }
 

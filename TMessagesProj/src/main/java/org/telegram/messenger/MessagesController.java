@@ -548,7 +548,6 @@ public class MessagesController extends BaseController implements NotificationCe
     public boolean getfileExperimentalParams;
     public volatile boolean downloadImprovementKillswitch;
     public boolean smsjobsStickyNotificationEnabled;
-    public boolean collectDeviceStats;
     public boolean showFiltersTooltip;
     public String gifSearchBot;
     public String imageSearchBot;
@@ -2822,17 +2821,6 @@ public class MessagesController extends BaseController implements NotificationCe
                     }
                     break;
                 }
-                case "login_google_oauth_client_id": {
-                    if (value.value instanceof TLRPC.TL_jsonString) {
-                        String str = ((TLRPC.TL_jsonString) value.value).value;
-                        /*if (!Objects.equals(BuildVars.GOOGLE_AUTH_CLIENT_ID, str)) {
-                            BuildVars.GOOGLE_AUTH_CLIENT_ID = str;
-                            editor.putString("googleAuthClientId", BuildVars.GOOGLE_AUTH_CLIENT_ID);
-                            changed = true;
-                        }*/
-                    }
-                    break;
-                }
                 case "premium_playmarket_direct_currency_list": {
                     if (value.value instanceof TLRPC.TL_jsonArray) {
                         TLRPC.TL_jsonArray arr = (TLRPC.TL_jsonArray) value.value;
@@ -3812,16 +3800,6 @@ public class MessagesController extends BaseController implements NotificationCe
                         if (number.value != chatlistUpdatePeriod) {
                             chatlistUpdatePeriod = (int) number.value;
                             editor.putInt("chatlistUpdatePeriod", chatlistUpdatePeriod);
-                            changed = true;
-                        }
-                    }
-                    break;
-                }
-                case "android_collect_device_stats": {
-                    if (value.value instanceof TLRPC.TL_jsonBool) {
-                        TLRPC.TL_jsonBool bool = (TLRPC.TL_jsonBool) value.value;
-                        if (bool.value != collectDeviceStats) {
-                            collectDeviceStats = bool.value;
                             changed = true;
                         }
                     }
@@ -5577,7 +5555,6 @@ public class MessagesController extends BaseController implements NotificationCe
     private void resetAppConfig() {
         getfileExperimentalParams = false;
         channelRevenueWithdrawalEnabled = false;
-        collectDeviceStats = false;
         smsjobsStickyNotificationEnabled = false;
         showAnnualPerMonth = false;
         canEditFactcheck = false;

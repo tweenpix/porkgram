@@ -183,8 +183,6 @@ public class UnifiedPushService extends PushService {
             ApplicationLoader.postInitApplication();
             ApplicationLoader.startPushService();
             Utilities.globalQueue.postRunnable(() -> {
-                SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
-
                 String token = endpoint.getUrl();
                 if (!TextUtils.isEmpty(SharedConfig.unifiedPushGateway)) {
                     try {
@@ -249,8 +247,6 @@ public class UnifiedPushService extends PushService {
         markRegistrationLost();
         SharedConfig.pushStringStatus = "__UNIFIEDPUSH_FAILED__";
         Utilities.globalQueue.postRunnable(() -> {
-            SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
-
             PushListenerController.sendRegistrationToServer(PushListenerController.PUSH_TYPE_SIMPLE, null);
         });
         if (reason == FailedReason.NETWORK || reason == FailedReason.INTERNAL_ERROR) {
@@ -265,8 +261,6 @@ public class UnifiedPushService extends PushService {
         markRegistrationLost();
         SharedConfig.pushStringStatus = "__UNIFIEDPUSH_FAILED__";
         Utilities.globalQueue.postRunnable(() -> {
-            SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
-
             PushListenerController.sendRegistrationToServer(PushListenerController.PUSH_TYPE_SIMPLE, null);
         });
         if (SharedConfig.disableUnifiedPush) {

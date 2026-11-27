@@ -266,7 +266,7 @@ public class ApplicationLoader extends Application {
                 ImageLoader.getInstance().setupFileLoaderDelegate(a);
             }
             if (a == 0) {
-                SharedConfig.pushStringStatus = "__FIREBASE_GENERATING_SINCE_" + ConnectionsManager.getInstance(a).getCurrentTime() + "__";
+                SharedConfig.pushStringStatus = "__PUSH_GENERATING_SINCE_" + ConnectionsManager.getInstance(a).getCurrentTime() + "__";
             } else {
                 ConnectionsManager.getInstance(a);
             }
@@ -545,7 +545,7 @@ public class ApplicationLoader extends Application {
                 if (BuildVars.LOGS_ENABLED) {
                     FileLog.d("No valid " + getPushProvider().getLogTitle() + " APK found.");
                 }
-                SharedConfig.pushStringStatus = "__NO_GOOGLE_PLAY_SERVICES__";
+                SharedConfig.pushStringStatus = "__NO_PUSH_SERVICES__";
                 PushListenerController.sendRegistrationToServer(getPushProvider().getPushType(), null);
             }
         }, 1000);
@@ -844,35 +844,11 @@ public class ApplicationLoader extends Application {
         return result;
     }
 
-    public static void startAppCenter(Activity context) {
-        applicationLoaderInstance.startAppCenterInternal(context);
-    }
-
     public static void checkForUpdates() {
         applicationLoaderInstance.checkForUpdatesInternal();
     }
 
-    public static void appCenterLog(Throwable e) {
-        applicationLoaderInstance.appCenterLogInternal(e);
-    }
-
-    protected void appCenterLogInternal(Throwable e) {
-
-    }
-
     protected void checkForUpdatesInternal() {
-
-    }
-
-    protected void startAppCenterInternal(Activity context) {
-
-    }
-
-    public static void logDualCamera(boolean success, boolean vendor) {
-        applicationLoaderInstance.logDualCameraInternal(success, vendor);
-    }
-
-    protected void logDualCameraInternal(boolean success, boolean vendor) {
 
     }
 

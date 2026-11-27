@@ -31,14 +31,12 @@ import java.util.concurrent.CountDownLatch;
 
 @Keep
 public class PushListenerController {
-    public static final int PUSH_TYPE_FIREBASE = 2,
-        PUSH_TYPE_SIMPLE = 4,
+    public static final int PUSH_TYPE_SIMPLE = 4,
         PUSH_TYPE_WEB = 10,
         PUSH_TYPE_HUAWEI = 13;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
-            PUSH_TYPE_FIREBASE,
             PUSH_TYPE_SIMPLE,
             PUSH_TYPE_WEB,
             PUSH_TYPE_HUAWEI
@@ -57,11 +55,6 @@ public class PushListenerController {
             if (pushType == SharedConfig.pushType && token.equals(SharedConfig.pushString) && !hasUnregisteredAccount()) {
                 return;
             }
-            boolean sendStat = false;
-            if (SharedConfig.pushStringGetTimeStart != 0 && SharedConfig.pushStringGetTimeEnd != 0 && (!SharedConfig.pushStatSent || !TextUtils.equals(SharedConfig.pushString, token))) {
-                sendStat = true;
-                SharedConfig.pushStatSent = false;
-            }
             SharedConfig.pushString = token;
             SharedConfig.pushType = pushType;
             for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
@@ -73,28 +66,6 @@ public class PushListenerController {
                 userConfig.saveConfig(false);
                 if (userConfig.getClientUserId() != 0) {
                     final int currentAccount = a;
-                    if (sendStat) {
-                        String tag = pushType == PUSH_TYPE_FIREBASE ? "fcm" : (pushType == PUSH_TYPE_HUAWEI ? "hcm" : "up");
-                        TLRPC.TL_help_saveAppLog req = new TLRPC.TL_help_saveAppLog();
-                        TLRPC.TL_inputAppEvent event = new TLRPC.TL_inputAppEvent();
-                        event.time = SharedConfig.pushStringGetTimeStart;
-                        event.type = tag + "_token_request";
-                        event.peer = 0;
-                        event.data = new TLRPC.TL_jsonNull();
-                        req.events.add(event);
-
-                        event = new TLRPC.TL_inputAppEvent();
-                        event.time = SharedConfig.pushStringGetTimeEnd;
-                        event.type = tag + "_token_response";
-                        event.peer = SharedConfig.pushStringGetTimeEnd - SharedConfig.pushStringGetTimeStart;
-                        event.data = new TLRPC.TL_jsonNull();
-                        req.events.add(event);
-
-                        sendStat = false;
-                        SharedConfig.pushStatSent = true;
-                        SharedConfig.saveConfig();
-                        ConnectionsManager.getInstance(currentAccount).sendRequest(req, null);
-                    }
                     AndroidUtilities.runOnUIThread(() -> MessagesController.getInstance(currentAccount).registerForPush(pushType, token));
                 }
             }
@@ -102,7 +73,7 @@ public class PushListenerController {
     }
 
     public static void processRemoteMessage(@PushType int pushType, String data, long time) {
-        String tag = pushType == PUSH_TYPE_FIREBASE ? "FCM" : (pushType == PUSH_TYPE_HUAWEI ? "HCM" : "UP");
+        String tag = pushType == PUSH_TYPE_HUAWEI ? "HCM" : "UP";
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d(tag + " PRE START PROCESSING");
         }
@@ -1813,81 +1784,6 @@ public class PushListenerController {
         }
     }
 
-    public final static class GooglePushListenerServiceProvider implements IPushListenerServiceProvider {
-        public final static GooglePushListenerServiceProvider INSTANCE = new GooglePushListenerServiceProvider();
-
-        private Boolean hasServices;
-
-        private GooglePushListenerServiceProvider() {}
-
-        @Override
-        public boolean needsPushToken() {
-            return TextUtils.isEmpty(SharedConfig.pushString) || hasUnregisteredAccount();
-        }
-
-        @Override
-        public String getLogTitle() {
-            return "Google Play Services";
-        }
-
-        @Override
-        public int getPushType() {
-            return PUSH_TYPE_FIREBASE;
-        }
-
-        @Override
-        public void onRequestPushToken() {
-            String currentPushString = SharedConfig.pushString;
-            if (!TextUtils.isEmpty(currentPushString)) {
-                if (BuildVars.DEBUG_PRIVATE_VERSION && BuildVars.LOGS_ENABLED) {
-                    FileLog.d("FCM regId = " + currentPushString);
-                }
-            } else {
-                if (BuildVars.LOGS_ENABLED) {
-                    FileLog.d("FCM Registration not found.");
-                }
-            }/*
-            Utilities.globalQueue.postRunnable(() -> {
-                try {
-                    SharedConfig.pushStringGetTimeStart = SystemClock.elapsedRealtime();
-                    FirebaseApp.initializeApp(ApplicationLoader.applicationContext);
-                    FirebaseMessaging.getInstance().getToken()
-                            .addOnCompleteListener(task -> {
-                                SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
-                                if (!task.isSuccessful()) {
-                                    if (BuildVars.LOGS_ENABLED) {
-                                        FileLog.d("Failed to get regid");
-                                    }
-                                    SharedConfig.pushStringStatus = "__FIREBASE_FAILED__";
-                                    PushListenerController.sendRegistrationToServer(getPushType(), null);
-                                    return;
-                                }
-                                String token = task.getResult();
-                                if (!TextUtils.isEmpty(token)) {
-                                    PushListenerController.sendRegistrationToServer(getPushType(), token);
-                                }
-                            });
-                } catch (Throwable e) {
-                    FileLog.e(e);
-                }
-            });*/
-        }
-
-        @Override
-        public boolean hasServices() {
-        	return false;/*
-            if (hasServices == null) {
-                try {
-                    int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ApplicationLoader.applicationContext);
-                    hasServices = resultCode == ConnectionResult.SUCCESS;
-                } catch (Exception e) {
-                    FileLog.e(e);
-                    hasServices = false;
-                }
-            }
-            return hasServices;*/
-        }
-    }
     public final static class UnifiedPushListenerServiceProvider implements IPushListenerServiceProvider {
         public final static UnifiedPushListenerServiceProvider INSTANCE = new UnifiedPushListenerServiceProvider();
         private final static UnifiedPushService mService = new UnifiedPushService();
@@ -1936,8 +1832,6 @@ public class PushListenerController {
                 }
                 Utilities.globalQueue.postRunnable(() -> {
                     try {
-                        SharedConfig.pushStringGetTimeStart = SystemClock.elapsedRealtime();
-                        SharedConfig.saveConfig();
                         if (UnifiedPush.getAckDistributor(ApplicationLoader.applicationContext) == null) {
                             String savedDistributor = UnifiedPush.getSavedDistributor(ApplicationLoader.applicationContext);
                             List<String> distributors = UnifiedPush.getDistributors(ApplicationLoader.applicationContext);

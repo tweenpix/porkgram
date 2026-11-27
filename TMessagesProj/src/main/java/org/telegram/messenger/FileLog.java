@@ -445,9 +445,6 @@ public class FileLog {
         if (!BuildVars.LOGS_ENABLED) {
             return;
         }
-        if (BuildVars.DEBUG_VERSION && needSent(e) && logToAppCenter) {
-            AndroidUtilities.appCenterLog(e);
-        }
         if (BuildVars.DEBUG_VERSION && e.getMessage() != null && e.getMessage().contains("disk image is malformed") && !databaseIsMalformed) {
             FileLog.d("copy malformed files");
             databaseIsMalformed = true;
@@ -532,9 +529,6 @@ public class FileLog {
         if (e instanceof OutOfMemoryError) {
             getInstance().dumpMemory(false);
         }
-        if (logToAppCenter && BuildVars.DEBUG_VERSION && needSent(e)) {
-            AndroidUtilities.appCenterLog(e);
-        }
         ensureInitied();
         e.printStackTrace();
         if (getInstance().streamWriter != null) {
@@ -568,13 +562,6 @@ public class FileLog {
                 System.exit(2);
             }
         }
-    }
-
-    private static boolean needSent(Throwable e) {
-        if (e instanceof InterruptedException || e instanceof MediaCodecVideoConvertor.ConversionCanceledException || e instanceof IgnoreSentException) {
-            return false;
-        }
-        return true;
     }
 
     public static void d(final String message) {

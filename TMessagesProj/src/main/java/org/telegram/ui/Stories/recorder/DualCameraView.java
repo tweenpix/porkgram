@@ -131,33 +131,6 @@ public class DualCameraView extends CameraView {
         if (enabledSavedDual) {
             onSavedDualCameraSuccess();
         }
-        log(true);
-    }
-
-    private void log(boolean success) {
-        final boolean vendor = DualCameraView.dualAvailableDefault(ApplicationLoader.applicationContext, false);
-        if (MessagesController.getInstance(UserConfig.selectedAccount).collectDeviceStats) {
-            try {
-                TLRPC.TL_help_saveAppLog req = new TLRPC.TL_help_saveAppLog();
-                TLRPC.TL_inputAppEvent event = new TLRPC.TL_inputAppEvent();
-                event.time = ConnectionsManager.getInstance(UserConfig.selectedAccount).getCurrentTime();
-                event.type = "android_dual_camera";
-                TLRPC.TL_jsonObject obj = new TLRPC.TL_jsonObject();
-                TLRPC.TL_jsonObjectValue kv = new TLRPC.TL_jsonObjectValue();
-                kv.key = "device";
-                TLRPC.TL_jsonString str = new TLRPC.TL_jsonString();
-                str.value = "" + Build.MANUFACTURER + Build.MODEL;
-                kv.value = str;
-                obj.value.add(kv);
-                event.data = obj;
-                event.peer = (success ? 1 : 0) | (vendor ? 2 : 0);
-                req.events.add(event);
-                ConnectionsManager.getInstance(UserConfig.selectedAccount).sendRequest(req, (response, error) -> {
-                });
-            } catch (Exception ignore) {
-            }
-        }
-        ApplicationLoader.logDualCamera(success, vendor);
     }
 
     protected void onSavedDualCameraSuccess() {

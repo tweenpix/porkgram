@@ -904,7 +904,6 @@ public class PremiumPreviewFragment extends BaseFragment implements Notification
                     return;
                 }
 
-                PremiumPreviewFragment.sentShowFeaturePreview(currentAccount, cell.data.type);
                 SubscriptionTier tier = selectedTierIndex < 0 || selectedTierIndex >= subscriptionTiers.size() ? null : subscriptionTiers.get(selectedTierIndex);
                 showDialog(new PremiumFeatureBottomSheet(PremiumPreviewFragment.this, getContext(), currentAccount, type == FEATURES_BUSINESS, cell.data.type, false, tier));
             }
@@ -965,8 +964,6 @@ public class PremiumPreviewFragment extends BaseFragment implements Notification
             AndroidUtilities.runOnUIThread(() -> getMediaDataController().loadPremiumPromo(false), 400);
         }
         MediaDataController.getInstance(currentAccount).preloadPremiumPreviewStickers();
-
-        sentShowScreenStat(source);
 
         ViewCompat.setOnApplyWindowInsetsListener(fragmentView, this::onApplyWindowInsets);
 
@@ -1159,8 +1156,6 @@ public class PremiumPreviewFragment extends BaseFragment implements Notification
             }
         }
         SubscriptionTier selectedTier = tier;
-
-        PremiumPreviewFragment.sentPremiumButtonClick();
 
         if (BuildVars.useInvoiceBilling()) {
             final Activity activity = fragment != null ? fragment.getParentActivity() : LaunchActivity.instance;
@@ -2287,95 +2282,6 @@ public class PremiumPreviewFragment extends BaseFragment implements Notification
             particlesView.setPaused(isVisible);
             contentView.invalidate();
         }
-    }
-
-    private void sentShowScreenStat() {
-        if (source == null) {
-            return;
-        }
-        sentShowScreenStat(source);
-        source = null;
-    }
-
-    public static void sentShowScreenStat(String source) {
-        ConnectionsManager connectionsManager = ConnectionsManager.getInstance(UserConfig.selectedAccount);
-        TLRPC.TL_help_saveAppLog req = new TLRPC.TL_help_saveAppLog();
-        TLRPC.TL_inputAppEvent event = new TLRPC.TL_inputAppEvent();
-        event.time = connectionsManager.getCurrentTime();
-        event.type = "premium.promo_screen_show";
-        TLRPC.TL_jsonObject data = new TLRPC.TL_jsonObject();
-        event.data = data;
-
-        TLRPC.TL_jsonObjectValue sourceObj = new TLRPC.TL_jsonObjectValue();
-        TLRPC.JSONValue sourceVal;
-        if (source != null) {
-            TLRPC.TL_jsonString jsonString = new TLRPC.TL_jsonString();
-            jsonString.value = source;
-            sourceVal = jsonString;
-        } else {
-            sourceVal = new TLRPC.TL_jsonNull();
-        }
-
-        sourceObj.key = "source";
-        sourceObj.value = sourceVal;
-
-        data.value.add(sourceObj);
-        req.events.add(event);
-
-        connectionsManager.sendRequest(req, (response, error) -> {
-
-        });
-    }
-
-    public static void sentPremiumButtonClick() {
-        TLRPC.TL_help_saveAppLog req = new TLRPC.TL_help_saveAppLog();
-        TLRPC.TL_inputAppEvent event = new TLRPC.TL_inputAppEvent();
-        event.time = ConnectionsManager.getInstance(UserConfig.selectedAccount).getCurrentTime();
-        event.type = "premium.promo_screen_accept";
-        event.data = new TLRPC.TL_jsonNull();
-        req.events.add(event);
-
-        ConnectionsManager.getInstance(UserConfig.selectedAccount).sendRequest(req, (response, error) -> {
-
-        });
-    }
-
-    public static void sentPremiumBuyCanceled() {
-        TLRPC.TL_help_saveAppLog req = new TLRPC.TL_help_saveAppLog();
-        TLRPC.TL_inputAppEvent event = new TLRPC.TL_inputAppEvent();
-        event.time = ConnectionsManager.getInstance(UserConfig.selectedAccount).getCurrentTime();
-        event.type = "premium.promo_screen_fail";
-        event.data = new TLRPC.TL_jsonNull();
-        req.events.add(event);
-
-        ConnectionsManager.getInstance(UserConfig.selectedAccount).sendRequest(req, (response, error) -> {
-
-        });
-    }
-
-    public static void sentShowFeaturePreview(int currentAccount, int type) {
-        TLRPC.TL_help_saveAppLog req = new TLRPC.TL_help_saveAppLog();
-        TLRPC.TL_inputAppEvent event = new TLRPC.TL_inputAppEvent();
-        event.time = ConnectionsManager.getInstance(currentAccount).getCurrentTime();
-        event.type = "premium.promo_screen_tap";
-        TLRPC.TL_jsonObject data = new TLRPC.TL_jsonObject();
-        event.data = data;
-        TLRPC.TL_jsonObjectValue item = new TLRPC.TL_jsonObjectValue();
-        String value = PremiumPreviewFragment.featureTypeToServerString(type);
-        if (value != null) {
-            TLRPC.TL_jsonString jsonString = new TLRPC.TL_jsonString();
-            jsonString.value = value;
-            item.value = jsonString;
-        } else {
-            item.value = new TLRPC.TL_jsonNull();
-        }
-        item.key = "item";
-        data.value.add(item);
-        req.events.add(event);
-
-        ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> {
-
-        });
     }
 
     public final static class SubscriptionTier {

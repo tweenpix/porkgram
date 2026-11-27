@@ -231,12 +231,9 @@ public class SharedConfig {
     public final static int SAVE_TO_GALLERY_FLAG_CHANNELS = 4;
 
     @PushListenerController.PushType
-    public static int pushType = PushListenerController.PUSH_TYPE_FIREBASE;
+    public static int pushType = PushListenerController.PUSH_TYPE_SIMPLE;
     public static String pushString = "";
     public static String pushStringStatus = "";
-    public static long pushStringGetTimeStart;
-    public static long pushStringGetTimeEnd;
-    public static boolean pushStatSent;
     public static byte[] pushAuthKey;
     public static byte[] pushAuthKeyId;
     public static boolean forceForumTabs;
@@ -480,7 +477,6 @@ public class SharedConfig {
                 editor.putBoolean("allowScreenCapture", allowScreenCapture);
                 editor.putString("pushString2", pushString);
                 editor.putInt("pushType", pushType);
-                editor.putBoolean("pushStatSent", pushStatSent);
                 editor.putString("pushAuthKey", pushAuthKey != null ? Base64.encodeToString(pushAuthKey, Base64.DEFAULT) : "");
                 editor.putInt("lastLocalId", lastLocalId);
                 editor.putString("passportConfigJson", passportConfigJson);
@@ -562,8 +558,7 @@ public class SharedConfig {
             allowScreenCapture = preferences.getBoolean("allowScreenCapture", false);
             lastLocalId = preferences.getInt("lastLocalId", -210000);
             pushString = preferences.getString("pushString2", "");
-            pushType = preferences.getInt("pushType", PushListenerController.PUSH_TYPE_FIREBASE);
-            pushStatSent = preferences.getBoolean("pushStatSent", false);
+            pushType = preferences.getInt("pushType", PushListenerController.PUSH_TYPE_SIMPLE);
             passportConfigJson = preferences.getString("passportConfigJson", "");
             passportConfigHash = preferences.getInt("passportConfigHash", 0);
             storageCacheDir = preferences.getString("storageCacheDir", null);

@@ -1068,7 +1068,6 @@ public class AndroidUtilities {
         } catch (Exception e) {
 
         }
-        ApplicationLoader.appCenterLog(new RuntimeException("can't create logs directory"));
         return null;
     }
 
@@ -3686,10 +3685,6 @@ public class AndroidUtilities {
             window.clearFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         }
     }*/
-
-    public static void appCenterLog(Throwable e) {
-        ApplicationLoader.appCenterLog(e);
-    }
 
     public static boolean shouldShowClipboardToast() {
         return (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !OneUIUtilities.hasBuiltInClipboardToasts()) && Build.VERSION.SDK_INT < 32;
