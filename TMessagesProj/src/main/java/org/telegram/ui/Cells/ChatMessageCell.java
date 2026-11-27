@@ -15577,6 +15577,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
      * before a cell lays it out (RichWidgetBlock#estimateSafeArea).
      */
     public static String timeString(MessageObject current, MessageObject message, boolean edited, int editDate) {
+        if (current.deleted && SharedConfig.keepDeletedMessages()) {
+            return getString(R.string.DeletedMessage);
+        }
         if (current.notime || current.isSponsored() || current.isQuickReply() || current.isWelcomeMessage()) {
             return "";
         } else if (current.scheduled && current.messageOwner.date == 0x7FFFFFFE) {
@@ -21543,7 +21546,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     }
 
     private void drawTimeInternal(Canvas canvas, float alpha, boolean fromParent, float timeX, StaticLayout timeLayout, float timeWidth, boolean drawSelectionBackground) {
-        if ((!drawTime || groupPhotoInvisible) && shouldDrawTimeOnMedia() || timeLayout == null || (currentMessageObject.deleted && currentPosition != null) || currentMessageObject.type == MessageObject.TYPE_PHONE_CALL) {
+        if ((!drawTime || groupPhotoInvisible) && shouldDrawTimeOnMedia() || timeLayout == null || (currentMessageObject.deleted && currentPosition != null && !SharedConfig.keepDeletedMessages()) || currentMessageObject.type == MessageObject.TYPE_PHONE_CALL) {
             return;
         }
         if (currentMessageObject.type == MessageObject.TYPE_ROUND_VIDEO) {

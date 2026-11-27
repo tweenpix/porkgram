@@ -11978,6 +11978,11 @@ public class MessagesController extends BaseController implements NotificationCe
 
     public void processLoadedMessages(TLRPC.messages_Messages messagesRes, int resCount, long dialogId, long mergeDialogId, int count, int max_id, int offset_date, boolean isCache, int classGuid,
                                       int first_unread, int last_message_id, int unread_count, int last_date, int load_type, boolean isEnd, int mode, long threadMessageId, int loadIndex, boolean queryFromServer, int mentionsCount, boolean needProcess, boolean isTopic, Timer loaderLogger) {
+        processLoadedMessages(messagesRes, resCount, dialogId, mergeDialogId, count, max_id, offset_date, isCache, classGuid, first_unread, last_message_id, unread_count, last_date, load_type, isEnd, mode, threadMessageId, loadIndex, queryFromServer, mentionsCount, needProcess, isTopic, loaderLogger, null);
+    }
+
+    public void processLoadedMessages(TLRPC.messages_Messages messagesRes, int resCount, long dialogId, long mergeDialogId, int count, int max_id, int offset_date, boolean isCache, int classGuid,
+                                      int first_unread, int last_message_id, int unread_count, int last_date, int load_type, boolean isEnd, int mode, long threadMessageId, int loadIndex, boolean queryFromServer, int mentionsCount, boolean needProcess, boolean isTopic, Timer loaderLogger, HashSet<Integer> deletedMessageIds) {
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("processLoadedMessages size " + messagesRes.messages.size() + " in chat " + dialogId + " topic_id " + threadMessageId + " count " + count + " max_id " + max_id + " cache " + isCache + " guid " + classGuid + " load_type " + load_type + " last_message_id " + last_message_id + " index " + loadIndex + " firstUnread " + first_unread + " unread_count " + unread_count + " last_date " + last_date + " queryFromServer " + queryFromServer + " isTopic " + isTopic + " mode " + mode);
         }
@@ -12155,6 +12160,9 @@ public class MessagesController extends BaseController implements NotificationCe
             message.dialog_id = dialogId;
             final MessageObject messageObject = new MessageObject(currentAccount, message, usersDict, chatsDict, true, false, mode == ChatActivity.MODE_SAVED);
             messageObject.scheduled = mode == 1;
+            if (deletedMessageIds != null && deletedMessageIds.contains(message.id)) {
+                messageObject.deleted = true;
+            }
             objects.add(messageObject);
             if (isCache) {
                 if (message.legacy && message.layer < TLRPC.LAYER) {

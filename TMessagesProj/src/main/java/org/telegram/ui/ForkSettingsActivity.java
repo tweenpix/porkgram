@@ -133,6 +133,7 @@ public class ForkSettingsActivity extends BaseFragment {
     public static final int ID_HIDE_CONTACTS_TAB = 110;
     public static final int ID_GIF_PLAYBACK_CONTROLS = 111;
     public static final int ID_BLUETOOTH_CALL_CONTROLS = 112;
+    public static final int ID_SHOW_DELETED_MESSAGES = 113;
     public static final int ID_SHOW_ARCHIVED_STICKERS = 45;
     public static final int ID_STICKER_SIZE = 46;
 
@@ -664,6 +665,8 @@ public class ForkSettingsActivity extends BaseFragment {
             .setChecked(pref("externalShareSilentByDefault", false)).setMultiline(true));
         items.add(UItem.asButtonCheck(ID_DELETE_ALL_UNPINNED, LocaleController.getString(R.string.AddDeleteAllUnpinnedMessages), LocaleController.getString(R.string.AddDeleteAllUnpinnedMessagesInfo))
             .setChecked(pref("addItemToDeleteAllUnpinnedMessages", false)).setMultiline(true));
+        items.add(UItem.asButtonCheck(ID_SHOW_DELETED_MESSAGES, LocaleController.getString(R.string.ForkShowDeletedMessages), LocaleController.getString(R.string.ForkShowDeletedMessagesInfo))
+            .setChecked(pref("showDeletedMessages", false)).setMultiline(true));
         items.add(UItem.asButtonCheck(ID_DISABLE_SLIDE_TO_NEXT_CHANNEL, LocaleController.getString(R.string.DisableSlideToNextChannel), LocaleController.getString(R.string.DisableSlideToNextChannelInfo))
             .setChecked(pref("disableSlideToNextChannel", false)).setMultiline(true));
         items.add(UItem.asButtonCheck(ID_HIDE_CHANNEL_MUTE_BUTTON, LocaleController.getString(R.string.HideChannelMuteButton), LocaleController.getString(R.string.HideChannelMuteButtonInfo))
@@ -903,6 +906,8 @@ public class ForkSettingsActivity extends BaseFragment {
             toggle("externalShareSilentByDefault", item, view);
         } else if (id == ID_DELETE_ALL_UNPINNED) {
             toggle("addItemToDeleteAllUnpinnedMessages", item, view);
+        } else if (id == ID_SHOW_DELETED_MESSAGES) {
+            toggle("showDeletedMessages", item, view);
         } else if (id == ID_DISABLE_SLIDE_TO_NEXT_CHANNEL) {
             toggle("disableSlideToNextChannel", item, view);
         } else if (id == ID_HIDE_CHANNEL_MUTE_BUTTON) {

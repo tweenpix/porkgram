@@ -290,6 +290,10 @@ public class SharedConfig {
     private static int lastLocalId = -210000;
     public static boolean walletUseFingerprintLock = true;
 
+    public static boolean keepDeletedMessages() {
+        return MessagesController.getGlobalMainSettings().getBoolean("showDeletedMessages", false);
+    }
+
     public static String storageCacheDir;
 
     private static String passportConfigJson = "";

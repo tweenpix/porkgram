@@ -146,6 +146,9 @@
     <string name="DeleteAllUnpinnedMessagesInfo">Are you sure you want **delete all unpinned messages** from this chat?</string>
     <string name="AddDeleteAllUnpinnedMessages">Add "Delete all unpinned messages" to menu</string>
     <string name="AddDeleteAllUnpinnedMessagesInfo">EXPERIMENTAL.</string>
+    <string name="ForkShowDeletedMessages">Show deleted messages</string>
+    <string name="ForkShowDeletedMessagesInfo">Keep messages that were deleted by you or others, and show them with a "deleted" mark. Only works for messages received or loaded after enabling this option.</string>
+    <string name="DeletedMessage">deleted message</string>
     <string name="NewMyStory">New Story</string>
     <string name="DisableSlideToNextChannel">Disable slide to next channel</string>
     <string name="DisableRecentFilesAttachment">Disable Recent Files</string>

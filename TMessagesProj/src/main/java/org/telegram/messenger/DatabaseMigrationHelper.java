@@ -1723,6 +1723,16 @@ public class DatabaseMigrationHelper {
             database.executeFast("PRAGMA user_version = 181").stepThis().dispose();
             version = 181;
         }
+        if (version == 181) {
+            if (!hasColumn(database, "messages_v2", "deleted")) {
+                database.executeFast("ALTER TABLE messages_v2 ADD COLUMN deleted INTEGER default 0").stepThis().dispose();
+            }
+            if (!hasColumn(database, "messages_topics", "deleted")) {
+                database.executeFast("ALTER TABLE messages_topics ADD COLUMN deleted INTEGER default 0").stepThis().dispose();
+            }
+            database.executeFast("PRAGMA user_version = 182").stepThis().dispose();
+            version = 182;
+        }
 
         return version;
     }

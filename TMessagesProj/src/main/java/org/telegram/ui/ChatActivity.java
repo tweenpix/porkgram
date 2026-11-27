@@ -28143,6 +28143,7 @@ public class ChatActivity extends BaseFragment implements
     private void processDeletedMessages(ArrayList<Integer> markAsDeletedMessages, long channelId, boolean sent, boolean thanos) {
         ArrayList<Integer> removedIndexes = new ArrayList<>();
         ArrayList<Integer> thanosMessagesIndexes = new ArrayList<>();
+        ArrayList<Integer> keptDeletedIndexes = new ArrayList<>();
         final int currentTime = getConnectionsManager().getCurrentTime();
         int loadIndex = 0;
         if (ChatObject.isChannel(currentChat)) {
@@ -28238,6 +28239,13 @@ public class ChatActivity extends BaseFragment implements
                 }
                 if (editingMessageObject == obj) {
                     hideFieldPanel(true);
+                }
+                if (SharedConfig.keepDeletedMessages() && !obj.scheduled && obj.messageOwner != null && obj.messageOwner.send_state == MessageObject.MESSAGE_SEND_STATE_SENT) {
+                    int keepIndex = chatAdapter != null && chatAdapter.isFiltered && filteredMessagesDict != null ? chatAdapter.filteredMessages.indexOf(filteredMessagesDict.get(mid)) : messages.indexOf(obj);
+                    if (keepIndex != -1 && chatAdapter != null) {
+                        keptDeletedIndexes.add(chatAdapter.messagesStartRow + keepIndex);
+                    }
+                    continue;
                 }
                 int index = chatAdapter != null && chatAdapter.isFiltered && filteredMessagesDict != null ? chatAdapter.filteredMessages.indexOf(filteredMessagesDict.get(mid)) : messages.indexOf(obj);
                 if (index != -1) {
@@ -28425,7 +28433,7 @@ public class ChatActivity extends BaseFragment implements
             updatePagedownButtonVisibility(true);
             showMentionDownButton(false, true);
         }
-        if (updated) {
+        if (updated || !keptDeletedIndexes.isEmpty()) {
             if (chatMode == MODE_PINNED) {
                 if (avatarContainer != null) {
                     avatarContainer.setTitle(LocaleController.formatPluralString("PinnedMessagesCount", getPinnedMessagesCount()));
@@ -28441,6 +28449,9 @@ public class ChatActivity extends BaseFragment implements
                 for (int a = 0, N = removedIndexes.size(); a < N; a++) {
                     final int pos = removedIndexes.get(a);
                     chatAdapter.notifyItemRemoved(pos, thanosMessagesIndexes.contains(pos));
+                }
+                for (int a = 0, N = keptDeletedIndexes.size(); a < N; a++) {
+                    chatAdapter.notifyItemChanged(keptDeletedIndexes.get(a));
                 }
                 if (!isThreadChat() || messages.size() <= 3) {
                     removeUnreadPlane(false);
