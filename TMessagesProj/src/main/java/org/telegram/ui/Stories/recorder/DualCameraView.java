@@ -486,7 +486,6 @@ public class DualCameraView extends CameraView {
                     .setPositiveButton(LocaleController.getString(R.string.OK), null)
                     .show();
             }
-            log(false);
             toggleDual();
         }
         if (getCameraSession(0) != null && getCameraSession(0).equals(session)) {
