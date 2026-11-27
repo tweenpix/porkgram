@@ -1,0 +1,66 @@
+name: Build signed APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-signed:
+    name: Build signed APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: false
+          android: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: nttld/setup-ndk@6a7e9c5494a25c4842ca1011f710300132eacd94 # v1.4.2
+        with:
+          ndk-version: r27c
+          link-to-sdk: true
+      - name: Install native build tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;27.2.12479018'
+          sudo apt update
+          sudo apt -y install ninja-build meson nasm gperf pkg-config unzip
+          rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+          rustup toolchain install 1.96.1 -t aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+      - name: Assemble signed APK
+        env:
+          ADDITIONAL_BUILD: ${{ secrets.ADDITIONAL_BUILD_NUMBER }}
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_HASH: ${{ secrets.APP_HASH }}
+          USER_ID_OWNER: ${{ secrets.USER_ID_OWNER }}
+          UPDATE_CHANNEL_USERNAME: ${{ secrets.UPDATE_CHANNEL_USERNAME }}
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_API_SECRET: ${{ secrets.LASTFM_API_SECRET }}
+        run: |
+          {
+            printf '\nDUMMY_CONST=0\norg.gradle.workers.max=1\n'
+            printf 'ADDITIONAL_BUILD_NUMBER=%s\n' "$((ADDITIONAL_BUILD / 10000))"
+            printf 'USER_REPO=%s\nCHECK_UPDATES=1\n' "$GITHUB_REPOSITORY"
+            printf 'APP_ID=%s\nAPP_HASH=%s\n' "${APP_ID:-0}" "${APP_HASH:-0}"
+            printf 'USER_ID_OWNER=%s\nUPDATE_CHANNEL_USERNAME=%s\n' "${USER_ID_OWNER:-0}" "${UPDATE_CHANNEL_USERNAME:-a}"
+            printf 'LASTFM_API_KEY=%s\nLASTFM_API_SECRET=%s\n' "${LASTFM_API_KEY:-a}" "${LASTFM_API_SECRET:-a}"
+          } >> gradle.properties
+          ./gradlew :TMessagesProj_App:assembleAfatRelease
+      - name: Upload signed APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: signed-apk
+          path: TMessagesProj_App/build/outputs/apk/afat/release/app.apk
+          if-no-files-found: error
+          retention-days: 7
